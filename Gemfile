@@ -63,3 +63,6 @@ group :test do
 end
 
 gem "neighbor"
+gem 'dotenv', groups: [:development, :test]
+gem "langchainrb"
+gem "ruby-openai"

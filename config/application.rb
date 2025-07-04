@@ -1,4 +1,6 @@
 require_relative "boot"
+require "net/http"
+require "langchain"
 
 require "rails/all"
 
