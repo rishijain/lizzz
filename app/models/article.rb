@@ -20,4 +20,8 @@ class Article < ApplicationRecord
     self.embedding = embed.first
     save!
   end
+
+  def find_nearest
+    nearest_neighbors(:embedding, distance: "cosine").first(5)
+  end
 end
