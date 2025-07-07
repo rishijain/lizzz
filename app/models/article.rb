@@ -2,18 +2,13 @@ class Article < ApplicationRecord
   has_neighbors :embedding
 
   def embed
-    url = "https://api.openai.com/v1/embeddings"
-    headers = {
-      "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
-      "Content-Type" => "application/json"
-    }
-    data = {
-      input: content,
-      model: "text-embedding-3-small"
-    }
+    llm = Langchain::LLM::OpenAI.new(
+            api_key: ENV["OPENAI_API_KEY"],
+            default_options: { temperature: 0.7, chat_model: "text-embedding-3-small" }
+    )
 
-    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-    JSON.parse(response.body)["data"].map { |v| v["embedding"] }
+    response = llm.embed(text: content)
+    embedding = response.embedding
   end
 
   def save_embedding
