@@ -6,7 +6,7 @@ class ArticlesController < ApplicationController
   def create
     @article = Article.new(article_params)
     @article.source_type = 'manual'
-    
+
     if @article.save
       # Queue background job to parse content
       ParseArticleContentJob.perform_later(@article.id)
@@ -24,6 +24,17 @@ class ArticlesController < ApplicationController
 
   def show
     @article = Article.find(params[:id])
+  end
+
+  def generate_summary
+    @article = Article.find(params[:id])
+
+    if @article.content.present?
+      GenerateSummaryJob.perform_later(@article.id)
+      redirect_to articles_path, notice: 'Summary generation started!'
+    else
+      redirect_to articles_path, alert: 'Cannot generate summary - article content not yet parsed.'
+    end
   end
 
   private

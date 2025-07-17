@@ -10,7 +10,8 @@ class GenerateSummaryJob < ApplicationJob
     summary = Agent::Llm.new.chat(prompt)
 
     summary_agent = Agent::GenerateSummary.new
-    summary_agent.generate_reviewed_summary(summary, examples)
+    summary = summary_agent.generate_reviewed_summary(summary, examples)
+    article.update(summary: summary)
   rescue => e
     Rails.logger.error "GenerateSummaryJob failed: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
