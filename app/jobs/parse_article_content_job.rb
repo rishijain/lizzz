@@ -6,11 +6,12 @@ class ParseArticleContentJob < ApplicationJob
     return unless article&.blog_url
 
     Rails.logger.info "Parsing content for article: #{article.blog_url}"
-    
+
     content = parse_article_content(article.blog_url)
-    
+
     if content
       article.update!(content: content)
+      article.save_embedding
       Rails.logger.info "Successfully parsed and saved content for article ID: #{article.id}"
     else
       Rails.logger.error "Failed to parse content for article: #{article.blog_url}"
@@ -49,29 +50,20 @@ class ParseArticleContentJob < ApplicationJob
     # Parse HTML with Nokogiri
     doc = Nokogiri::HTML(html_content)
 
-    # Find the body element, fallback to entire document if no body
-    body = doc.at('body') || doc
+    # Look specifically for content inside article.post section.post-content
+    post_content = doc.at('article.post section.post-content')
 
-    # Remove script and style elements completely
-    body.search('script, style, noscript').remove
+    # If no article.post section.post-content found, return nil or empty string
+    unless post_content
+      Rails.logger.warn "No article.post section.post-content found in HTML"
+      return ""
+    end
 
-    # Remove header and design elements
-    body.search('header, nav, footer, aside, .header, .nav, .navigation, .sidebar, .menu, .breadcrumb, .pagination, .advertisement, .ad, .social, .share, .comment-form, .search-form, #header, #nav, #navigation, #sidebar, #menu, #footer').remove
+    # Remove code blocks from the post content
+    post_content.search('pre, code, .highlight, .code, .sourceCode, .codehilite, .syntax-highlight, .language-').remove
 
-    # Remove elements with common design-related classes and IDs
-    body.search('[class*="nav"], [class*="menu"], [class*="header"], [class*="footer"], [class*="sidebar"], [class*="banner"], [class*="ad"], [class*="social"], [class*="share"], [class*="widget"], [class*="meta"], [id*="nav"], [id*="menu"], [id*="header"], [id*="footer"], [id*="sidebar"]').remove
-
-    # Remove additional design and navigation elements
-    body.search('button, input, select, textarea, form, .button, .btn, .form, .input, .search, .filter, .sort, .dropdown, .modal, .popup, .overlay, .tooltip, .alert, .notification, .cookie, .gdpr').remove
-
-    # Remove comments and interactive elements
-    body.search('.comments, .comment, .reply, .votes, .rating, .tags, .categories, .author-info, .date, .timestamp, .byline, .caption, .credit').remove
-
-    # Try to find main content areas first
-    main_content = body.at('main, article, [role="main"], .main, .content, .post, .entry, #main, #content') || body
-
-    # Extract text content from main content area
-    text_content = main_content.text
+    # Extract text content from post-content area only
+    text_content = post_content.text
 
     # Clean up whitespace
     text_content.gsub(/\s+/, ' ').strip

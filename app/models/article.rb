@@ -13,7 +13,7 @@ class Article < ApplicationRecord
   end
 
   def save_embedding
-    self.embedding = embed.first
+    self.embedding = embed
     save!
   end
 
