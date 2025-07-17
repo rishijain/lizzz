@@ -50,27 +50,6 @@
       PROMPT
     end
 
-    def self.regenerate_prompt(summary, feedback, examples)
-      <<~PROMPT
-        You are an expert at the english language. Your task is to rewrite a summary considering the feedback provided.
-
-        This is the existing summary you need to rewrite:
-        <----- Content start ----->
-        #{summary}
-        <----- Content end ----->
-
-        Here is the feedback you need to consider:
-        <----- Feedback start ----->
-        #{feedback}
-        <----- Feedback end ----->
-
-        To maintain the tone and style, please refer to the following examples:
-        <----- Examples start ----->
-        #{example_information(examples)}
-        <----- Examples end ----->
-      PROMPT
-    end
-
     private
 
     def self.example_information(examples)
