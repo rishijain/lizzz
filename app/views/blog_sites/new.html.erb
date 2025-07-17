@@ -1,0 +1,30 @@
+<h1>New Blog Site</h1>
+
+<%= form_with model: @blog_site, local: true do |form| %>
+  <% if @blog_site.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@blog_site.errors.count, "error") %> prohibited this blog site from being saved:</h2>
+      <ul>
+        <% @blog_site.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :url %>
+    <%= form.url_field :url %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
+
+<%= link_to 'Back', blog_sites_path %>

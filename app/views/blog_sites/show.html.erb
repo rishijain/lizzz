@@ -1,0 +1,9 @@
+<h1><%= @blog_site.name %></h1>
+
+<p>
+  <strong>URL:</strong>
+  <%= link_to @blog_site.url, @blog_site.url, target: '_blank' %>
+</p>
+
+<%= link_to 'Edit', edit_blog_site_path(@blog_site) %> |
+<%= link_to 'Back', blog_sites_path %>
