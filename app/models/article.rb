@@ -1,6 +1,9 @@
 class Article < ApplicationRecord
   belongs_to :blog_site
   has_neighbors :embedding
+  
+  scope :scraped, -> { where(source_type: 'scraped') }
+  scope :manual, -> { where(source_type: 'manual') }
 
   def embed
     llm = Langchain::LLM::OpenAI.new(

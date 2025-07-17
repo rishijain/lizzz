@@ -1,0 +1,56 @@
+<h1>Articles</h1>
+
+<div style="margin-bottom: 2rem;">
+  <%= link_to 'Add New Article', new_article_path, class: 'btn btn-primary' %>
+</div>
+
+<% if @articles.any? %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>URL</th>
+        <th>Blog Site</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @articles.each do |article| %>
+        <tr>
+          <td>
+            <strong><%= article.title.present? ? article.title : 'Untitled' %></strong>
+          </td>
+          <td>
+            <%= link_to truncate(article.blog_url, length: 50), article.blog_url, target: '_blank', style: 'color: #667eea;' %>
+          </td>
+          <td>
+            <%= article.blog_site.name if article.blog_site %>
+          </td>
+          <td>
+            <% if article.content.present? %>
+              <span class="status-badge status-success">Parsed</span>
+            <% else %>
+              <span class="status-badge status-warning">Pending</span>
+            <% end %>
+          </td>
+          <td>
+            <%= time_ago_in_words(article.created_at) %> ago
+          </td>
+          <td>
+            <div class="actions">
+              <%= link_to 'View', article, class: 'btn btn-secondary' %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="card" style="text-align: center; margin-top: 2rem;">
+    <h3>No Articles Found</h3>
+    <p>Start by adding article URLs to parse and analyze content.</p>
+    <%= link_to 'Add Your First Article', new_article_path, class: 'btn btn-primary' %>
+  </div>
+<% end %>

@@ -1,0 +1,61 @@
+<h1><%= @article.title.present? ? @article.title : 'Untitled Article' %></h1>
+
+<div class="card">
+  <div class="form-group">
+    <label class="form-label">Article URL</label>
+    <p><%= link_to @article.blog_url, @article.blog_url, target: '_blank', style: 'color: #667eea; font-weight: 500;' %></p>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Blog Site</label>
+    <p><%= @article.blog_site.name if @article.blog_site %></p>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Source Type</label>
+    <p><span class="status-badge status-info"><%= @article.source_type.capitalize %></span></p>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Status</label>
+    <p>
+      <% if @article.content.present? %>
+        <span class="status-badge status-success">Content Parsed</span>
+      <% else %>
+        <span class="status-badge status-warning">Parsing Pending</span>
+      <% end %>
+    </p>
+  </div>
+
+  <% if @article.content.present? %>
+    <div class="form-group">
+      <label class="form-label">Content Preview</label>
+      <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto; border: 1px solid #e9ecef;">
+        <p><%= truncate(@article.content, length: 500) %></p>
+      </div>
+    </div>
+
+    <% if @article.summary.present? %>
+      <div class="form-group">
+        <label class="form-label">AI Summary</label>
+        <div style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(102, 126, 234, 0.3);">
+          <p><%= @article.summary %></p>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="form-group">
+    <label class="form-label">Created</label>
+    <p><%= @article.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+  </div>
+</div>
+
+<div class="actions" style="margin-top: 2rem;">
+  <%= link_to 'Back to Articles', articles_path, class: 'btn btn-secondary' %>
+  
+  <% if @article.content.present? && @article.summary.blank? %>
+    <%= link_to 'Generate Summary', '#', class: 'btn btn-primary', 
+        onclick: "alert('Summary generation feature coming soon!')" %>
+  <% end %>
+</div>
