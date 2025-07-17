@@ -1,9 +1,26 @@
 <h1><%= @blog_site.name %></h1>
 
-<p>
-  <strong>URL:</strong>
-  <%= link_to @blog_site.url, @blog_site.url, target: '_blank' %>
-</p>
+<div class="card">
+  <div class="form-group">
+    <label class="form-label">Blog URL</label>
+    <p><%= link_to @blog_site.url, @blog_site.url, target: '_blank', style: 'color: #667eea; font-weight: 500;' %></p>
+  </div>
 
-<%= link_to 'Edit', edit_blog_site_path(@blog_site) %> |
-<%= link_to 'Back', blog_sites_path %>
+  <div class="form-group">
+    <label class="form-label">Status</label>
+    <p><span class="status-badge status-success">Active</span></p>
+  </div>
+
+  <% if @blog_site.articles.any? %>
+    <div class="form-group">
+      <label class="form-label">Articles Count</label>
+      <p><%= @blog_site.articles.count %> articles collected</p>
+    </div>
+  <% end %>
+</div>
+
+<div class="actions" style="margin-top: 2rem;">
+  <%= link_to 'Edit', edit_blog_site_path(@blog_site), class: 'btn btn-primary' %>
+  <%= link_to 'Back to Blog Sites', blog_sites_path, class: 'btn btn-secondary' %>
+  <%= link_to 'Delete', @blog_site, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+</div>

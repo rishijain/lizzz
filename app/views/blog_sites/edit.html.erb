@@ -1,31 +1,32 @@
 <h1>Edit Blog Site</h1>
 
-<%= form_with model: @blog_site, local: true do |form| %>
-  <% if @blog_site.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@blog_site.errors.count, "error") %> prohibited this blog site from being saved:</h2>
-      <ul>
-        <% @blog_site.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+<div class="card">
+  <%= form_with model: @blog_site, local: true do |form| %>
+    <% if @blog_site.errors.any? %>
+      <div style="background: linear-gradient(135deg, #f56565, #e53e3e); color: white; padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
+        <h3 style="margin: 0 0 1rem 0; color: white;"><%= pluralize(@blog_site.errors.count, "error") %> prohibited this blog site from being saved:</h3>
+        <ul style="margin: 0; padding-left: 1.5rem;">
+          <% @blog_site.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :name, class: 'form-label' %>
+      <%= form.text_field :name, class: 'form-control' %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :url, class: 'form-label' %>
+      <%= form.url_field :url, class: 'form-control' %>
+    </div>
+
+    <div class="actions">
+      <%= form.submit 'Update Blog Site', class: 'btn btn-primary' %>
+      <%= link_to 'Show', @blog_site, class: 'btn btn-secondary' %>
+      <%= link_to 'Cancel', blog_sites_path, class: 'btn btn-secondary' %>
     </div>
   <% end %>
-
-  <div class="field">
-    <%= form.label :name %>
-    <%= form.text_field :name %>
-  </div>
-
-  <div class="field">
-    <%= form.label :url %>
-    <%= form.url_field :url %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
-<% end %>
-
-<%= link_to 'Show', @blog_site %> |
-<%= link_to 'Back', blog_sites_path %>
+</div>

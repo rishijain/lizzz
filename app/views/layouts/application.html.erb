@@ -23,6 +23,20 @@
   </head>
 
   <body>
-    <%= yield %>
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <%= link_to "Lizzz", root_path, class: "logo" %>
+          <nav class="nav-links">
+            <%= link_to "Blog Sites", blog_sites_path %>
+            <%= link_to "Articles", "#" %>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content fade-in">
+      <%= yield %>
+    </main>
   </body>
 </html>

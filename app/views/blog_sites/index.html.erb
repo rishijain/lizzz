@@ -1,26 +1,42 @@
 <h1>Blog Sites</h1>
 
-<%= link_to 'New Blog Site', new_blog_site_path, class: 'btn btn-primary' %>
+<div style="margin-bottom: 2rem;">
+  <%= link_to 'New Blog Site', new_blog_site_path, class: 'btn btn-primary' %>
+</div>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>URL</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @blog_sites.each do |blog_site| %>
+<% if @blog_sites.any? %>
+  <table class="table">
+    <thead>
       <tr>
-        <td><%= blog_site.name %></td>
-        <td><%= blog_site.url %></td>
-        <td>
-          <%= link_to 'Show', blog_site %>
-          <%= link_to 'Edit', edit_blog_site_path(blog_site) %>
-          <%= link_to 'Delete', blog_site, method: :delete, data: { confirm: 'Are you sure?' } %>
-        </td>
+        <th>Name</th>
+        <th>URL</th>
+        <th>Status</th>
+        <th>Actions</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @blog_sites.each do |blog_site| %>
+        <tr>
+          <td><strong><%= blog_site.name %></strong></td>
+          <td><%= link_to blog_site.url, blog_site.url, target: '_blank', style: 'color: #667eea;' %></td>
+          <td>
+            <span class="status-badge status-success">Active</span>
+          </td>
+          <td>
+            <div class="actions">
+              <%= link_to 'Show', blog_site, class: 'btn btn-secondary' %>
+              <%= link_to 'Edit', edit_blog_site_path(blog_site), class: 'btn btn-secondary' %>
+              <%= link_to 'Delete', blog_site, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="card" style="text-align: center; margin-top: 2rem;">
+    <h3>No Blog Sites Found</h3>
+    <p>Get started by adding your first blog site to track and summarize content.</p>
+    <%= link_to 'Add Your First Blog Site', new_blog_site_path, class: 'btn btn-primary' %>
+  </div>
+<% end %>
