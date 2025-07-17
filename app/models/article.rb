@@ -1,4 +1,5 @@
 class Article < ApplicationRecord
+  belongs_to :blog_site
   has_neighbors :embedding
 
   def embed

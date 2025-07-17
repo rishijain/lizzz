@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_04_133600) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_17_090235) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -22,5 +22,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_133600) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.vector "embedding"
+    t.bigint "blog_site_id", null: false
+    t.string "blog_url"
+    t.index ["blog_site_id"], name: "index_articles_on_blog_site_id"
   end
+
+  create_table "blog_sites", force: :cascade do |t|
+    t.string "url"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_foreign_key "articles", "blog_sites"
 end
