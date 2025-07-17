@@ -1,7 +1,7 @@
-<h1>Articles for <%= @blog_site.name %></h1>
+<h1>Newsletter Links for <%= @blog_site.name %></h1>
 
 <div style="margin-bottom: 2rem;">
-  <%= link_to 'Add New Article', new_blog_site_article_path(@blog_site), class: 'btn btn-primary' %>
+  <%= link_to 'Add New Link', new_blog_site_article_path(@blog_site), class: 'btn btn-primary' %>
 </div>
 
 <% if @articles.any? %>
@@ -12,7 +12,7 @@
         <th>URL</th>
         <th>Blog Site</th>
         <th>Status</th>
-        <th>Created</th>
+        <th>Summary Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -36,7 +36,13 @@
             <% end %>
           </td>
           <td>
-            <%= time_ago_in_words(article.created_at) %> ago
+            <% if article.summary_status == 'generating' %>
+              <span class="status-badge status-warning">Generating</span>
+            <% elsif article.summary_status == 'generated' %>
+              <span class="status-badge status-success">Generated</span>
+            <% else %>
+              <span class="status-badge status-secondary">Not Started</span>
+            <% end %>
           </td>
           <td>
             <div class="actions">
@@ -46,11 +52,15 @@
                   <button class="btn btn-success" onclick="openSummaryModal('<%= article.id %>')">
                     Read Summary
                   </button>
-                <% else %>
+                <% elsif article.summary_status.blank? %>
                   <%= button_to 'Generate Summary', generate_summary_blog_site_article_path(@blog_site, article), 
                       method: :post, 
                       class: 'btn btn-primary', 
                       data: { disable_with: 'Generating...' } %>
+                <% elsif article.summary_status == 'generating' %>
+                  <button class="btn btn-warning" disabled>
+                    Generating...
+                  </button>
                 <% end %>
               <% end %>
             </div>

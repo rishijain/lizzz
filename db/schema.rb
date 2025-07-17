@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_17_104247) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_17_112250) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -25,8 +25,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_17_104247) do
     t.bigint "blog_site_id", null: false
     t.string "blog_url"
     t.string "source_type", default: "scraped"
+    t.string "summary_status"
     t.index ["blog_site_id"], name: "index_articles_on_blog_site_id"
     t.index ["source_type"], name: "index_articles_on_source_type"
+    t.index ["summary_status"], name: "index_articles_on_summary_status"
   end
 
   create_table "blog_sites", force: :cascade do |t|

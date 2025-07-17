@@ -11,7 +11,7 @@ class GenerateSummaryJob < ApplicationJob
 
     summary_agent = Agent::GenerateSummary.new
     summary = summary_agent.generate_reviewed_summary(summary, examples)
-    article.update(summary: summary)
+    article.update(summary: summary, summary_status: 'generated')
   rescue => e
     Rails.logger.error "GenerateSummaryJob failed: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")

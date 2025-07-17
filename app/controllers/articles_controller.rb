@@ -28,6 +28,7 @@ class ArticlesController < ApplicationController
 
   def generate_summary
     if @article.content.present?
+      @article.update(summary_status: 'generating')
       GenerateSummaryJob.perform_later(@article.id)
       redirect_to blog_site_articles_path(@blog_site), notice: 'Summary generation started!'
     else

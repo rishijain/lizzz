@@ -1,4 +1,4 @@
-<h1>Add New Article to <%= @blog_site.name %></h1>
+<h1>Add New Newsletter Link to <%= @blog_site.name %></h1>
 
 <div class="card">
   <%= form_with model: [@blog_site, @article], local: true do |form| %>
@@ -20,7 +20,7 @@
 
     <div class="form-group">
       <%= form.label :blog_url, 'Article URL', class: 'form-label' %>
-      <%= form.url_field :blog_url, class: 'form-control', placeholder: 'Enter article URL (e.g., "https://example.com/article")', required: true %>
+      <%= form.url_field :blog_url, class: 'form-control', placeholder: 'Enter link URL (e.g., "https://example.com/article")', required: true %>
     </div>
 
     <div class="form-group">
