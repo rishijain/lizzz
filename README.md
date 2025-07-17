@@ -1,25 +1,56 @@
-# README
-A summarizer for links
+# Lizzz - AI Blog Summarization System
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Rails 8 application that collects, processes, and summarizes blog content using AI. The system allows users to:
 
-Things you may want to cover:
+- **Scrape blog posts** automatically from configured blog sites
+- **Add individual article URLs** manually for processing
+- **Parse HTML content** and extract clean text using background jobs
+- **Generate AI-powered summaries** using OpenAI's API with contextual examples
+- **Search similar content** using vector embeddings and similarity matching
+- **Organize content by blog site** with nested URL structure
 
-* Ruby version
+The application combines automated blog scraping with manual content curation, providing intelligent summarization that learns from existing content to maintain consistent tone and style across summaries.
 
-* System dependencies
+## Key Features
 
-* Configuration
+- Background job processing for content parsing and AI summarization
+- Vector similarity search for finding related articles
+- Review loop system for refined AI-generated summaries
+- Clean, responsive UI for managing blog sites and articles
+- Status tracking for parsing and summarization progress
 
-* Database creation
+## Setup
 
-* Database initialization
+### Requirements
 
-* How to run the test suite
+- Ruby 3.2+
+- Rails 8
+- PostgreSQL
+- OpenAI API key
 
-* Services (job queues, cache servers, search engines, etc.)
+### Installation
 
-* Deployment instructions
+1. Install dependencies:
 
-* ...
+   ```bash
+   bundle install
+   ```
+
+2. Setup database:
+
+   ```bash
+   rails db:create
+   rails db:migrate
+   ```
+
+3. Configure environment variables:
+
+   ```bash
+   # Create .env file
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
+
+4. Start the application:
+   ```bash
+   rails server
+   ```
