@@ -1,7 +1,7 @@
-<h1>Articles</h1>
+<h1>Articles for <%= @blog_site.name %></h1>
 
 <div style="margin-bottom: 2rem;">
-  <%= link_to 'Add New Article', new_article_path, class: 'btn btn-primary' %>
+  <%= link_to 'Add New Article', new_blog_site_article_path(@blog_site), class: 'btn btn-primary' %>
 </div>
 
 <% if @articles.any? %>
@@ -40,14 +40,14 @@
           </td>
           <td>
             <div class="actions">
-              <%= link_to 'View', article, class: 'btn btn-secondary' %>
+              <%= link_to 'View', blog_site_article_path(@blog_site, article), class: 'btn btn-secondary' %>
               <% if article.content.present? %>
                 <% if article.summary.present? %>
                   <button class="btn btn-success" onclick="openSummaryModal('<%= article.id %>')">
                     Read Summary
                   </button>
                 <% else %>
-                  <%= button_to 'Generate Summary', generate_summary_article_path(article), 
+                  <%= button_to 'Generate Summary', generate_summary_blog_site_article_path(@blog_site, article), 
                       method: :post, 
                       class: 'btn btn-primary', 
                       data: { disable_with: 'Generating...' } %>
@@ -63,7 +63,7 @@
   <div class="card" style="text-align: center; margin-top: 2rem;">
     <h3>No Articles Found</h3>
     <p>Start by adding article URLs to parse and analyze content.</p>
-    <%= link_to 'Add Your First Article', new_article_path, class: 'btn btn-primary' %>
+    <%= link_to 'Add Your First Article', new_blog_site_article_path(@blog_site), class: 'btn btn-primary' %>
   </div>
 <% end %>
 

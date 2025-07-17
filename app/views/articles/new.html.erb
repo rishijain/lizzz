@@ -1,7 +1,7 @@
-<h1>Add New Article</h1>
+<h1>Add New Article to <%= @blog_site.name %></h1>
 
 <div class="card">
-  <%= form_with model: @article, local: true do |form| %>
+  <%= form_with model: [@blog_site, @article], local: true do |form| %>
     <% if @article.errors.any? %>
       <div style="background: linear-gradient(135deg, #f56565, #e53e3e); color: white; padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
         <h3 style="margin: 0 0 1rem 0; color: white;"><%= pluralize(@article.errors.count, "error") %> prohibited this article from being saved:</h3>
@@ -25,15 +25,13 @@
 
     <div class="form-group">
       <%= form.label :blog_site_id, 'Blog Site', class: 'form-label' %>
-      <%= form.select :blog_site_id, 
-            options_from_collection_for_select(@blog_sites, :id, :name, @article.blog_site_id), 
-            { prompt: 'Select a blog site' }, 
-            { class: 'form-control', required: true } %>
+      <%= form.hidden_field :blog_site_id, value: @blog_site.id %>
+      <p class="form-control-static"><%= @blog_site.name %></p>
     </div>
 
     <div class="actions">
       <%= form.submit 'Add Article', class: 'btn btn-primary' %>
-      <%= link_to 'Cancel', articles_path, class: 'btn btn-secondary' %>
+      <%= link_to 'Cancel', blog_site_articles_path(@blog_site), class: 'btn btn-secondary' %>
     </div>
   <% end %>
 </div>

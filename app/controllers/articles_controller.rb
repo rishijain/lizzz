@@ -1,45 +1,51 @@
 class ArticlesController < ApplicationController
+  before_action :set_blog_site
+  before_action :set_article, only: [:show, :generate_summary]
+
   def index
-    @articles = Article.manual.order(created_at: :desc)
+    @articles = @blog_site.articles.manual.order(created_at: :desc)
   end
 
   def create
-    @article = Article.new(article_params)
+    @article = @blog_site.articles.build(article_params)
     @article.source_type = 'manual'
 
     if @article.save
       # Queue background job to parse content
       ParseArticleContentJob.perform_later(@article.id)
-      redirect_to articles_path, notice: 'Article URL saved! Content is being parsed in the background.'
+      redirect_to blog_site_articles_path(@blog_site), notice: 'Article URL saved! Content is being parsed in the background.'
     else
-      @blog_sites = BlogSite.all
       render :new
     end
   end
 
   def new
-    @article = Article.new
-    @blog_sites = BlogSite.all
+    @article = @blog_site.articles.build
   end
 
   def show
-    @article = Article.find(params[:id])
   end
 
   def generate_summary
-    @article = Article.find(params[:id])
-
     if @article.content.present?
       GenerateSummaryJob.perform_later(@article.id)
-      redirect_to articles_path, notice: 'Summary generation started!'
+      redirect_to blog_site_articles_path(@blog_site), notice: 'Summary generation started!'
     else
-      redirect_to articles_path, alert: 'Cannot generate summary - article content not yet parsed.'
+      redirect_to blog_site_articles_path(@blog_site), alert: 'Cannot generate summary - article content not yet parsed.'
     end
   end
 
   private
 
+  def set_blog_site
+    @blog_site = BlogSite.find(params[:blog_site_id])
+  end
+
+  def set_article
+    @article = @blog_site.articles.find(params[:id])
+  end
+
   def article_params
-    params.require(:article).permit(:title, :blog_url, :blog_site_id)
+    params.require(:article).permit(:title, :blog_url)
   end
 end

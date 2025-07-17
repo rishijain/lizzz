@@ -1,8 +1,9 @@
 Rails.application.routes.draw do
-  resources :blog_sites
-  resources :articles do
-    member do
-      post :generate_summary
+  resources :blog_sites do
+    resources :articles do
+      member do
+        post :generate_summary
+      end
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

@@ -52,10 +52,12 @@
 </div>
 
 <div class="actions" style="margin-top: 2rem;">
-  <%= link_to 'Back to Articles', articles_path, class: 'btn btn-secondary' %>
+  <%= link_to 'Back to Articles', blog_site_articles_path(@blog_site), class: 'btn btn-secondary' %>
   
   <% if @article.content.present? && @article.summary.blank? %>
-    <%= link_to 'Generate Summary', '#', class: 'btn btn-primary', 
-        onclick: "alert('Summary generation feature coming soon!')" %>
+    <%= button_to 'Generate Summary', generate_summary_blog_site_article_path(@blog_site, @article), 
+        method: :post, 
+        class: 'btn btn-primary', 
+        data: { disable_with: 'Generating...' } %>
   <% end %>
 </div>

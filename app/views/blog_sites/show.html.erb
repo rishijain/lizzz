@@ -20,7 +20,8 @@
 </div>
 
 <div class="actions" style="margin-top: 2rem;">
-  <%= link_to 'Edit', edit_blog_site_path(@blog_site), class: 'btn btn-primary' %>
+  <%= link_to 'View Articles', blog_site_articles_path(@blog_site), class: 'btn btn-primary' %>
+  <%= link_to 'Edit', edit_blog_site_path(@blog_site), class: 'btn btn-secondary' %>
   <%= link_to 'Back to Blog Sites', blog_sites_path, class: 'btn btn-secondary' %>
   <%= link_to 'Delete', @blog_site, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
 </div>
