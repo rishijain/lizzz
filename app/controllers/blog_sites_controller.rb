@@ -16,7 +16,8 @@ class BlogSitesController < ApplicationController
     @blog_site = BlogSite.new(blog_site_params)
 
     if @blog_site.save
-      redirect_to @blog_site, notice: 'Blog site was successfully created.'
+      CollectBlogUrlsJob.perform_later(@blog_site.id)
+      redirect_to @blog_site, notice: 'Blog site was successfully created and URL collection started.'
     else
       render :new
     end
