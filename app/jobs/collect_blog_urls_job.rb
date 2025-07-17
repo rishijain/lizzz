@@ -139,11 +139,14 @@ class CollectBlogUrlsJob < ApplicationJob
       existing_article = Article.find_by(blog_url: url, blog_site: blog_site)
       next if existing_article
       
-      Article.create!(
+      article = Article.create!(
         blog_site: blog_site,
         blog_url: url,
-        content: nil  # Will be populated later when content is scraped
+        content: nil  # Will be populated by ParseArticleContentJob
       )
+      
+      # Queue job to parse the article content
+      ParseArticleContentJob.perform_later(article.id)
     end
   end
 
