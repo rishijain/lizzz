@@ -1,4 +1,5 @@
 class ArticlesController < ApplicationController
+  before_action :require_login
   before_action :set_blog_site
   before_action :set_article, only: [:show, :generate_summary]
 
@@ -39,7 +40,7 @@ class ArticlesController < ApplicationController
   private
 
   def set_blog_site
-    @blog_site = BlogSite.find(params[:blog_site_id])
+    @blog_site = current_user.blog_sites.find(params[:blog_site_id])
   end
 
   def set_article

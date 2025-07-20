@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_20_033100) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_20_033748) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -36,6 +36,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_20_033100) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_blog_sites_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -47,4 +49,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_20_033100) do
   end
 
   add_foreign_key "articles", "blog_sites"
+  add_foreign_key "blog_sites", "users"
 end

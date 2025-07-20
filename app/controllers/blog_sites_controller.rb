@@ -1,19 +1,29 @@
 class BlogSitesController < ApplicationController
+  before_action :require_login
   before_action :set_blog_site, only: [:show, :edit, :update, :destroy]
 
   def index
-    @blog_sites = BlogSite.all
+    @blog_sites = current_user.blog_sites
   end
 
   def show
   end
 
   def new
-    @blog_site = BlogSite.new
+    if current_user.blog_sites.count >= 3
+      redirect_to blog_sites_path, alert: "You can only have up to 3 blog sites."
+      return
+    end
+    @blog_site = current_user.blog_sites.build
   end
 
   def create
-    @blog_site = BlogSite.new(blog_site_params)
+    if current_user.blog_sites.count >= 3
+      redirect_to blog_sites_path, alert: "You can only have up to 3 blog sites."
+      return
+    end
+
+    @blog_site = current_user.blog_sites.build(blog_site_params)
 
     if @blog_site.save
       CollectBlogUrlsJob.perform_later(@blog_site.id)
@@ -42,7 +52,7 @@ class BlogSitesController < ApplicationController
   private
 
   def set_blog_site
-    @blog_site = BlogSite.find(params[:id])
+    @blog_site = current_user.blog_sites.find(params[:id])
   end
 
   def blog_site_params

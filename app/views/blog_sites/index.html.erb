@@ -1,7 +1,14 @@
-<h1>Blog Sites</h1>
+<h1>My Blog Sites</h1>
 
 <div style="margin-bottom: 2rem;">
-  <%= link_to 'New Blog Site', new_blog_site_path, class: 'btn btn-primary' %>
+  <% if @blog_sites.count < 3 %>
+    <%= link_to 'New Blog Site', new_blog_site_path, class: 'btn btn-primary' %>
+    <small style="color: #666; margin-left: 1rem;">
+      <%= @blog_sites.count %> of 3 blog sites used
+    </small>
+  <% else %>
+    <span class="btn btn-disabled">Maximum blog sites reached (3/3)</span>
+  <% end %>
 </div>
 
 <% if @blog_sites.any? %>
@@ -37,6 +44,7 @@
   <div class="card" style="text-align: center; margin-top: 2rem;">
     <h3>No Blog Sites Found</h3>
     <p>Get started by adding your first blog site to track and summarize content.</p>
+    <p><em>You can add up to 3 blog sites to your account.</em></p>
     <%= link_to 'Add Your First Blog Site', new_blog_site_path, class: 'btn btn-primary' %>
   </div>
 <% end %>
