@@ -66,3 +66,5 @@ gem "neighbor"
 gem 'dotenv', groups: [:development, :test]
 gem "langchainrb"
 gem "ruby-openai"
+gem "kaminari"
+gem "nokogiri"
