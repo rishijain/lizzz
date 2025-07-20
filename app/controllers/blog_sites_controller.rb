@@ -1,6 +1,6 @@
 class BlogSitesController < ApplicationController
   before_action :require_login
-  before_action :set_blog_site, only: [:show, :edit, :update, :destroy, :retry_discovery, :discovered_urls, :clear_discovered_urls]
+  before_action :set_blog_site, only: [:show, :edit, :update, :destroy, :retry_discovery, :discovered_urls, :clear_discovered_urls, :delete_discovered_url]
 
   def index
     if current_user_admin?
@@ -65,6 +65,17 @@ class BlogSitesController < ApplicationController
     @blog_site.articles.where(source_type: 'discovered').destroy_all
     @blog_site.update!(discovery_status: 'pending', discovered_count: 0)
     redirect_to @blog_site, notice: 'All discovered URLs have been cleared. You can now retry discovery with a custom selector.'
+  end
+
+  def delete_discovered_url
+    article = @blog_site.articles.find(params[:article_id])
+    article.destroy
+    
+    # Update discovered count
+    remaining_count = @blog_site.articles.where(source_type: 'discovered').count
+    @blog_site.update!(discovered_count: remaining_count)
+    
+    redirect_to discovered_urls_blog_site_path(@blog_site), notice: 'URL was successfully deleted.'
   end
 
   def retry_discovery

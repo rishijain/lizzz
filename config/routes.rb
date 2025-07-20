@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       post :retry_discovery
       get :discovered_urls
       delete :clear_discovered_urls
+      delete 'delete_discovered_url/:article_id', to: 'blog_sites#delete_discovered_url', as: :delete_discovered_url
     end
     resources :articles do
       member do

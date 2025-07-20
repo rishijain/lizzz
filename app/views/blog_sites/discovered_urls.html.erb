@@ -43,9 +43,9 @@
     <table class="table">
       <thead>
         <tr>
-          <th style="width: 60%;">Blog URL</th>
-          <th style="width: 20%;">Title</th>
-          <th style="width: 20%;">Actions</th>
+          <th style="width: 50%;">Blog URL</th>
+          <th style="width: 25%;">Title</th>
+          <th style="width: 25%;">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -64,6 +64,15 @@
             <td>
               <div class="actions">
                 <%= link_to 'View', article.blog_url, target: '_blank', class: 'btn btn-sm btn-secondary' %>
+                <%= link_to 'Delete', 
+                      delete_discovered_url_blog_site_path(@blog_site, article_id: article.id), 
+                      method: :delete, 
+                      data: { 
+                        "turbo-method": "delete", 
+                        "turbo-confirm": "Are you sure you want to delete this URL?" 
+                      }, 
+                      class: 'btn btn-sm btn-danger',
+                      style: 'margin-left: 0.5rem;' %>
               </div>
             </td>
           </tr>
