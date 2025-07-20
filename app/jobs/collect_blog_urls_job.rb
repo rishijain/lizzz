@@ -81,20 +81,41 @@ class CollectBlogUrlsJob < ApplicationJob
       blog_links.each do |href|
         next if href.nil? || href.empty?
         
+        Rails.logger.debug "Processing link: #{href}"
+        
         # Convert relative URLs to absolute
         begin
           full_url = URI.join(blog_site.url, href).to_s
+          Rails.logger.debug "Full URL: #{full_url}"
           
           # Skip if we've already seen this URL on this page
-          next if seen_on_page.include?(full_url)
-          
-          # Filter for URLs that look like blog posts
-          if looks_like_blog_post?(full_url, base_uri.host)
-            seen_on_page.add(full_url)
-            urls << full_url
+          if seen_on_page.include?(full_url)
+            Rails.logger.debug "Skipping duplicate URL: #{full_url}"
+            next
           end
-        rescue URI::InvalidURIError
-          # Skip invalid URLs
+          
+          # If using custom selector, trust the results more (only basic filtering)
+          # Otherwise apply strict blog post filtering
+          if blog_site.custom_selector.present?
+            if looks_like_valid_url?(full_url, base_uri.host)
+              Rails.logger.debug "Valid URL with custom selector: #{full_url}"
+              seen_on_page.add(full_url)
+              urls << full_url
+            else
+              Rails.logger.debug "Filtered out by looks_like_valid_url: #{full_url}"
+            end
+          else
+            # Apply strict filtering for automatic detection
+            if looks_like_blog_post?(full_url, base_uri.host)
+              Rails.logger.debug "Valid blog post URL: #{full_url}"
+              seen_on_page.add(full_url)
+              urls << full_url
+            else
+              Rails.logger.debug "Filtered out by looks_like_blog_post: #{full_url}"
+            end
+          end
+        rescue URI::InvalidURIError => e
+          Rails.logger.debug "Invalid URI error for #{href}: #{e.message}"
           next
         end
       end
@@ -113,17 +134,98 @@ class CollectBlogUrlsJob < ApplicationJob
     if blog_site.custom_selector.present?
       Rails.logger.info "Using custom selector: #{blog_site.custom_selector}"
       links = []
-      doc.css(blog_site.custom_selector).each do |element|
-        element.css('a[href]').each do |link|
-          links << link['href']
+      
+      # Smart link extraction within the custom selector
+      container_elements = doc.css(blog_site.custom_selector)
+      
+      if container_elements.any?
+        Rails.logger.info "Found #{container_elements.length} container(s) matching selector"
+        
+        container_elements.each do |container|
+          # Strategy 1a: Direct links in the container
+          direct_links = container.css('a[href]')
+          direct_links.each { |link| links << link['href'] }
+          
+          # Strategy 1b: Links in immediate children (like .post, .article, etc.)
+          immediate_children = container.children.select(&:element?)
+          immediate_children.each do |child|
+            child.css('a[href]').each { |link| links << link['href'] }
+          end
+          
+          # Strategy 1c: Look for common blog post wrapper patterns
+          blog_post_patterns = [
+            '.post', '.article', '.entry', '.blog-post', '.content',
+            '[class*="post"]', '[class*="article"]', '[class*="entry"]',
+            'article', 'div[class*="item"]', 'li'
+          ]
+          
+          blog_post_patterns.each do |pattern|
+            container.css(pattern).each do |element|
+              element.css('a[href]').each { |link| links << link['href'] }
+            end
+          end
         end
+        
+        # Remove duplicates while preserving order
+        links = links.uniq
+        Rails.logger.info "Found #{links.length} unique links using intelligent extraction"
+      else
+        Rails.logger.warn "No elements found matching custom selector: #{blog_site.custom_selector}"
       end
+      
       return links if links.any?
     end
 
     # Strategy 2: Try common blog patterns
     Rails.logger.info "Using automatic blog post detection"
     doc.css('a[href]').map { |link| link['href'] }
+  end
+
+  def looks_like_valid_url?(url, host)
+    uri = URI(url)
+    
+    # Must be same host
+    unless uri.host == host
+      Rails.logger.debug "Rejected #{url}: different host (#{uri.host} vs #{host})"
+      return false
+    end
+    
+    # Basic filtering - skip static files and obviously non-content URLs
+    path = uri.path.downcase
+    
+    # Skip static files
+    if path.match?(/\.(css|js|png|jpg|jpeg|gif|svg|ico|pdf|zip)$/i)
+      Rails.logger.debug "Rejected #{url}: static file"
+      return false
+    end
+    
+    # Skip root and empty paths
+    if path == '/' || path.empty?
+      Rails.logger.debug "Rejected #{url}: root or empty path"
+      return false
+    end
+    
+    # Skip obviously admin/system pages
+    if path.match?(/^\/?(admin|login|signup|404|500)$/i)
+      Rails.logger.debug "Rejected #{url}: admin/system page"
+      return false
+    end
+    
+    # Skip directory-like paths (ending with /) unless they look like blog posts
+    # Allow paths that have date patterns or meaningful content after the date
+    if path.match?(/\/$/)
+      # Allow if it matches common blog post patterns:
+      # - /YYYY/MM/DD/post-title/
+      # - /YYYY/MM/post-title/  
+      # - Has substantial content after date (more than just numbers)
+      unless path.match?(/\/\d{4}\/\d{2}\/(\d{2}\/)?[\w\-]+\/$/) || path.match?(/\/\d{4}\/\d{2}\/[\w\-]+\/$/)
+        Rails.logger.debug "Rejected #{url}: directory-like path without content"
+        return false
+      end
+    end
+    
+    Rails.logger.debug "Accepted #{url}: passed all validation checks"
+    true
   end
 
   def looks_like_blog_post?(url, host)
