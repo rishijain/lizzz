@@ -29,12 +29,24 @@
           <%= link_to "Lizzz", root_path, class: "logo" %>
           <nav class="nav-links">
             <%= link_to "Blog Sites", blog_sites_path %>
+            <% if current_user %>
+              <%= button_to "Sign Out", signout_path, method: :delete, class: "btn btn-outline" %>
+            <% else %>
+              <%= link_to "Sign In", signin_path %>
+              <%= link_to "Sign Up", signup_path %>
+            <% end %>
           </nav>
         </div>
       </div>
     </header>
 
     <main class="main-content fade-in">
+      <% if notice %>
+        <div class="alert alert-success"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="alert alert-danger"><%= alert %></div>
+      <% end %>
       <%= yield %>
     </main>
   </body>
