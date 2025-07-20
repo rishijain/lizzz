@@ -1,0 +1,55 @@
+<% content_for :title, "Admin - Users" %>
+
+<h1>User Management</h1>
+
+<div style="margin-bottom: 2rem;">
+  <span style="background: #dc2626; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: bold;">
+    Admin Panel
+  </span>
+</div>
+
+<% if @users.any? %>
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Blog Sites</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td><%= user.email %></td>
+            <td>
+              <% if user.admin? %>
+                <span style="color: #dc2626; font-weight: bold;">Admin</span>
+              <% else %>
+                <span style="color: #374151;">User</span>
+              <% end %>
+            </td>
+            <td><%= user.blog_sites.count %></td>
+            <td><%= user.created_at.strftime("%b %d, %Y") %></td>
+            <td>
+              <div class="actions">
+                <%= link_to 'View', admin_user_path(user), class: 'btn btn-sm btn-secondary' %>
+                <%= link_to 'Edit', edit_admin_user_path(user), class: 'btn btn-sm btn-secondary' %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="card" style="text-align: center; padding: 3rem;">
+    <h3>No Users Found</h3>
+  </div>
+<% end %>
+
+<div class="actions" style="margin-top: 2rem;">
+  <%= link_to 'Back to Blog Sites', blog_sites_path, class: 'btn btn-secondary' %>
+</div>

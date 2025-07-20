@@ -1,7 +1,12 @@
-<h1>My Blog Sites</h1>
+<h1><%= current_user_admin? ? 'All Blog Sites (Admin View)' : 'My Blog Sites' %></h1>
 
 <div style="margin-bottom: 2rem;">
-  <% if @blog_sites.count < 3 %>
+  <% if current_user_admin? %>
+    <%= link_to 'New Blog Site', new_blog_site_path, class: 'btn btn-primary' %>
+    <small style="color: #666; margin-left: 1rem;">
+      Total: <%= @blog_sites.count %> blog sites
+    </small>
+  <% elsif @blog_sites.count < 3 %>
     <%= link_to 'New Blog Site', new_blog_site_path, class: 'btn btn-primary' %>
     <small style="color: #666; margin-left: 1rem;">
       <%= @blog_sites.count %> of 3 blog sites used
@@ -17,6 +22,9 @@
       <tr>
         <th>Name</th>
         <th>URL</th>
+        <% if current_user_admin? %>
+          <th>Owner</th>
+        <% end %>
         <th>Discovery Status</th>
         <th>Actions</th>
       </tr>
@@ -26,6 +34,14 @@
         <tr>
           <td><strong><%= blog_site.name %></strong></td>
           <td><%= link_to blog_site.url, blog_site.url, target: '_blank', style: 'color: #667eea;' %></td>
+          <% if current_user_admin? %>
+            <td>
+              <span style="<%= blog_site.user.admin? ? 'color: #dc2626; font-weight: bold;' : 'color: #374151;' %>">
+                <%= blog_site.user.email %>
+                <%= ' (Admin)' if blog_site.user.admin? %>
+              </span>
+            </td>
+          <% end %>
           <td>
             <% case blog_site.discovery_status %>
             <% when 'pending' %>

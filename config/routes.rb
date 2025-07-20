@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  namespace :admin do
+    resources :users, only: [:index, :show, :edit, :update]
+  end
   # Authentication routes
   get "/signup", to: "users#new"
   post "/signup", to: "users#create"

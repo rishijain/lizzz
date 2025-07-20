@@ -3,14 +3,18 @@ class BlogSitesController < ApplicationController
   before_action :set_blog_site, only: [:show, :edit, :update, :destroy, :retry_discovery, :discovered_urls, :clear_discovered_urls]
 
   def index
-    @blog_sites = current_user.blog_sites
+    if current_user_admin?
+      @blog_sites = BlogSite.includes(:user).all
+    else
+      @blog_sites = current_user.blog_sites
+    end
   end
 
   def show
   end
 
   def new
-    if current_user.blog_sites.count >= 3
+    if !current_user_admin? && current_user.blog_sites.count >= 3
       redirect_to blog_sites_path, alert: "You can only have up to 3 blog sites."
       return
     end
@@ -18,7 +22,7 @@ class BlogSitesController < ApplicationController
   end
 
   def create
-    if current_user.blog_sites.count >= 3
+    if !current_user_admin? && current_user.blog_sites.count >= 3
       redirect_to blog_sites_path, alert: "You can only have up to 3 blog sites."
       return
     end
@@ -77,7 +81,11 @@ class BlogSitesController < ApplicationController
   private
 
   def set_blog_site
-    @blog_site = current_user.blog_sites.find(params[:id])
+    if current_user_admin?
+      @blog_site = BlogSite.find(params[:id])
+    else
+      @blog_site = current_user.blog_sites.find(params[:id])
+    end
   end
 
   def blog_site_params

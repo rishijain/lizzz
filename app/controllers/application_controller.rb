@@ -19,4 +19,15 @@ class ApplicationController < ActionController::Base
       redirect_to signin_path, alert: "You must be logged in to access this page."
     end
   end
+
+  def current_user_admin?
+    current_user&.admin?
+  end
+  helper_method :current_user_admin?
+
+  def require_admin
+    unless current_user_admin?
+      redirect_to blog_sites_path, alert: "Access denied. Admin privileges required."
+    end
+  end
 end

@@ -30,6 +30,9 @@
           <nav class="nav-links">
             <%= link_to "Blog Sites", blog_sites_path %>
             <% if current_user %>
+              <% if current_user_admin? %>
+                <%= link_to "Admin", admin_users_path, style: "background: #dc2626; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-decoration: none;" %>
+              <% end %>
               <%= button_to "Sign Out", signout_path, method: :delete, class: "btn btn-outline" %>
             <% else %>
               <%= link_to "Sign In", signin_path %>
