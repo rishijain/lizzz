@@ -33,7 +33,12 @@
             <div class="actions">
               <%= link_to 'Show', blog_site, class: 'btn btn-secondary' %>
               <%= link_to 'Edit', edit_blog_site_path(blog_site), class: 'btn btn-secondary' %>
-              <%= link_to 'Delete', blog_site, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+              <%= link_to 'Delete', blog_site_path(blog_site), 
+                    data: { 
+                      "turbo-method": "delete", 
+                      "turbo-confirm": "Are you sure?" 
+                    }, 
+                    class: 'btn btn-danger' %>
             </div>
           </td>
         </tr>
