@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_20_033748) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_20_053522) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -37,6 +37,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_20_033748) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.string "custom_selector"
+    t.string "discovery_status", default: "pending"
+    t.integer "discovered_count", default: 0
     t.index ["user_id"], name: "index_blog_sites_on_user_id"
   end
 

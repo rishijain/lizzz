@@ -1,6 +1,6 @@
 class BlogSitesController < ApplicationController
   before_action :require_login
-  before_action :set_blog_site, only: [:show, :edit, :update, :destroy]
+  before_action :set_blog_site, only: [:show, :edit, :update, :destroy, :retry_discovery, :discovered_urls, :clear_discovered_urls]
 
   def index
     @blog_sites = current_user.blog_sites
@@ -27,7 +27,7 @@ class BlogSitesController < ApplicationController
 
     if @blog_site.save
       CollectBlogUrlsJob.perform_later(@blog_site.id)
-      redirect_to @blog_site, notice: 'Blog site was successfully created and URL collection started.'
+      redirect_to @blog_site, notice: 'Blog site was successfully created! We are discovering blog post URLs in the background.'
     else
       render :new
     end
@@ -38,10 +38,35 @@ class BlogSitesController < ApplicationController
 
   def update
     if @blog_site.update(blog_site_params)
-      redirect_to @blog_site, notice: 'Blog site was successfully updated.'
+      # If custom_selector was updated, retry discovery
+      if params[:blog_site][:custom_selector].present? && @blog_site.needs_custom_selector?
+        @blog_site.update!(discovery_status: 'pending')
+        CollectBlogUrlsJob.perform_later(@blog_site.id)
+        redirect_to @blog_site, notice: 'Blog site was successfully updated! Retrying URL discovery with custom selector.'
+      else
+        redirect_to @blog_site, notice: 'Blog site was successfully updated.'
+      end
     else
       render :edit
     end
+  end
+
+  def discovered_urls
+    # Show all articles for now to debug - we can filter by source_type later
+    @articles = @blog_site.articles.order(:created_at)
+    @discovered_articles = @blog_site.articles.where(source_type: 'discovered').order(:created_at)
+  end
+
+  def clear_discovered_urls
+    @blog_site.articles.where(source_type: 'discovered').destroy_all
+    @blog_site.update!(discovery_status: 'pending', discovered_count: 0)
+    redirect_to @blog_site, notice: 'All discovered URLs have been cleared. You can now retry discovery with a custom selector.'
+  end
+
+  def retry_discovery
+    @blog_site.update!(discovery_status: 'pending')
+    CollectBlogUrlsJob.perform_later(@blog_site.id)
+    redirect_to @blog_site, notice: 'URL discovery restarted!'
   end
 
   def destroy
@@ -56,6 +81,6 @@ class BlogSitesController < ApplicationController
   end
 
   def blog_site_params
-    params.require(:blog_site).permit(:name, :url)
+    params.require(:blog_site).permit(:name, :url, :custom_selector)
   end
 end

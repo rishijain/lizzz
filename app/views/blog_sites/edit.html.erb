@@ -23,6 +23,12 @@
       <%= form.url_field :url, class: 'form-control' %>
     </div>
 
+    <div class="form-group">
+      <%= form.label :custom_selector, 'Custom CSS Selector (Optional)', class: 'form-label' %>
+      <%= form.text_field :custom_selector, class: 'form-control', placeholder: 'e.g., .post-list, #blog-posts, .article-container' %>
+      <small class="form-text">Provide a CSS selector that wraps all blog post links on your blog homepage.</small>
+    </div>
+
     <div class="actions">
       <%= form.submit 'Update Blog Site', class: 'btn btn-primary' %>
       <%= link_to 'Show', @blog_site, class: 'btn btn-secondary' %>

@@ -21,6 +21,13 @@
     <div class="form-group">
       <%= form.label :url, class: 'form-label' %>
       <%= form.url_field :url, class: 'form-control', placeholder: 'Enter blog URL (e.g., "https://ombulabs.com/blog")' %>
+      <small class="form-text">We'll automatically try to discover blog post URLs from this page.</small>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :custom_selector, 'Custom CSS Selector (Optional)', class: 'form-label' %>
+      <%= form.text_field :custom_selector, class: 'form-control', placeholder: 'e.g., .post-list, #blog-posts, .article-container' %>
+      <small class="form-text">If we can't find your blog posts automatically, provide a CSS selector that wraps all blog post links on your blog homepage.</small>
     </div>
 
     <div class="actions">

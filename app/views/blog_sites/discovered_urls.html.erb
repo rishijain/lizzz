@@ -1,0 +1,99 @@
+<% content_for :title, "Discovered URLs - #{@blog_site.name}" %>
+
+<div style="margin-bottom: 2rem;">
+  <h1>Discovered Blog URLs</h1>
+  <p style="color: #666;">
+    <%= link_to @blog_site.name, @blog_site %> › Discovered URLs
+  </p>
+</div>
+
+<!-- Debug info -->
+<div style="background: #f0f0f0; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+  <h4>Debug Info:</h4>
+  <p>Total articles for this blog site: <%= @articles.count %></p>
+  <p>Articles with source_type 'discovered': <%= @discovered_articles.count %></p>
+  <% if @articles.any? %>
+    <p>Source types found: <%= @articles.pluck(:source_type).uniq.compact.join(', ') %></p>
+  <% end %>
+</div>
+
+<% if @articles.any? %>
+  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h3 style="margin: 0; color: #1a202c;">Found <%= @articles.count %> Blog URLs</h3>
+        <p style="margin: 0.5rem 0 0 0; color: #4a5568;">
+          Review the discovered URLs below. If these don't look correct, you can clear them and retry with a custom CSS selector.
+        </p>
+      </div>
+      <div>
+        <%= link_to 'Clear All URLs', 
+              clear_discovered_urls_blog_site_path(@blog_site), 
+              method: :delete, 
+              data: { 
+                "turbo-method": "delete", 
+                "turbo-confirm": "Are you sure? This will delete all discovered URLs and reset discovery status." 
+              }, 
+              class: 'btn btn-danger' %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="width: 60%;">Blog URL</th>
+          <th style="width: 20%;">Title</th>
+          <th style="width: 20%;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each_with_index do |article, index| %>
+          <tr>
+            <td>
+              <%= link_to article.blog_url, article.blog_url, 
+                    target: '_blank', 
+                    style: 'color: #667eea; word-break: break-all;' %>
+            </td>
+            <td>
+              <span style="color: #4a5568; font-size: 0.9rem;">
+                <%= article.title.present? ? article.title : 'No title' %>
+              </span>
+            </td>
+            <td>
+              <div class="actions">
+                <%= link_to 'View', article.blog_url, target: '_blank', class: 'btn btn-sm btn-secondary' %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top: 2rem; text-align: center; color: #666;">
+    <p>
+      These URLs were automatically discovered from your blog homepage.
+      <br>
+      If some URLs are missing or incorrect, try using a custom CSS selector.
+    </p>
+  </div>
+
+<% else %>
+  <div class="card" style="text-align: center; padding: 3rem;">
+    <h3>No URLs Discovered</h3>
+    <p style="color: #666; margin: 1rem 0;">
+      We couldn't find any blog post URLs automatically.
+    </p>
+    <p style="color: #666; margin: 1rem 0;">
+      This usually means your blog structure requires a custom CSS selector.
+    </p>
+    <%= link_to 'Configure Custom Selector', edit_blog_site_path(@blog_site), class: 'btn btn-primary' %>
+  </div>
+<% end %>
+
+<div class="actions" style="margin-top: 2rem;">
+  <%= link_to 'Back to Blog Site', @blog_site, class: 'btn btn-secondary' %>
+  <%= link_to 'Edit Blog Site', edit_blog_site_path(@blog_site), class: 'btn btn-secondary' %>
+</div>

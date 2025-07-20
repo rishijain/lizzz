@@ -5,12 +5,24 @@ class CollectBlogUrlsJob < ApplicationJob
     blog_site = BlogSite.find(blog_site_id)
     return unless blog_site
 
+    blog_site.update!(discovery_status: 'discovering')
     Rails.logger.info "Starting URL collection for blog site: #{blog_site.url}"
     
-    collect_blog_urls(blog_site)
+    total_urls = collect_blog_urls(blog_site)
+    
+    if total_urls > 0
+      blog_site.update!(
+        discovery_status: 'success',
+        discovered_count: total_urls
+      )
+    else
+      blog_site.update!(discovery_status: 'needs_selector')
+    end
+    
   rescue => e
     Rails.logger.error "CollectBlogUrlsJob failed: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
+    blog_site.update!(discovery_status: 'failed') if blog_site
     raise
   end
 
@@ -29,7 +41,7 @@ class CollectBlogUrlsJob < ApplicationJob
     while next_page_url && current_page <= 12
       Rails.logger.info "Processing page #{current_page}: #{next_page_url}"
       
-      page_urls = scrape_page(next_page_url, blog_site.url)
+      page_urls = scrape_page(next_page_url, blog_site)
       
       # Create Article records for unique URLs
       unique_urls = page_urls.select { |url| !seen_urls.include?(url) }
@@ -44,9 +56,10 @@ class CollectBlogUrlsJob < ApplicationJob
     end
     
     Rails.logger.info "Found #{seen_urls.length} total unique blog posts for #{blog_site.url}"
+    seen_urls.length
   end
 
-  def scrape_page(page_url, base_url)
+  def scrape_page(page_url, blog_site)
     urls = []
     seen_on_page = Set.new
     
@@ -60,17 +73,17 @@ class CollectBlogUrlsJob < ApplicationJob
       
       doc = Nokogiri::HTML(response.body)
       
-      # Extract blog post URLs - look for links that could be blog posts
-      blog_links = doc.css('a[href]').map { |link| link['href'] }
+      # Extract blog post URLs - try custom selector first, then fallback to general approach
+      blog_links = extract_links_with_strategy(doc, blog_site)
       
-      base_uri = URI(base_url)
+      base_uri = URI(blog_site.url)
       
       blog_links.each do |href|
         next if href.nil? || href.empty?
         
         # Convert relative URLs to absolute
         begin
-          full_url = URI.join(base_url, href).to_s
+          full_url = URI.join(blog_site.url, href).to_s
           
           # Skip if we've already seen this URL on this page
           next if seen_on_page.include?(full_url)
@@ -93,6 +106,24 @@ class CollectBlogUrlsJob < ApplicationJob
     end
     
     urls
+  end
+
+  def extract_links_with_strategy(doc, blog_site)
+    # Strategy 1: Use custom selector if provided
+    if blog_site.custom_selector.present?
+      Rails.logger.info "Using custom selector: #{blog_site.custom_selector}"
+      links = []
+      doc.css(blog_site.custom_selector).each do |element|
+        element.css('a[href]').each do |link|
+          links << link['href']
+        end
+      end
+      return links if links.any?
+    end
+
+    # Strategy 2: Try common blog patterns
+    Rails.logger.info "Using automatic blog post detection"
+    doc.css('a[href]').map { |link| link['href'] }
   end
 
   def looks_like_blog_post?(url, host)
@@ -142,6 +173,7 @@ class CollectBlogUrlsJob < ApplicationJob
       article = Article.create!(
         blog_site: blog_site,
         blog_url: url,
+        source_type: 'discovered',
         content: nil  # Will be populated by ParseArticleContentJob
       )
       

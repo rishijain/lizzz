@@ -7,6 +7,11 @@ Rails.application.routes.draw do
   delete "/signout", to: "sessions#destroy"
 
   resources :blog_sites do
+    member do
+      post :retry_discovery
+      get :discovered_urls
+      delete :clear_discovered_urls
+    end
     resources :articles do
       member do
         post :generate_summary

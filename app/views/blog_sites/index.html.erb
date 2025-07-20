@@ -17,7 +17,7 @@
       <tr>
         <th>Name</th>
         <th>URL</th>
-        <th>Status</th>
+        <th>Discovery Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -27,7 +27,23 @@
           <td><strong><%= blog_site.name %></strong></td>
           <td><%= link_to blog_site.url, blog_site.url, target: '_blank', style: 'color: #667eea;' %></td>
           <td>
-            <span class="status-badge status-success">Active</span>
+            <% case blog_site.discovery_status %>
+            <% when 'pending' %>
+              <span class="status-badge" style="background: #fbbf24; color: #92400e;">Pending</span>
+            <% when 'discovering' %>
+              <span class="status-badge" style="background: #3b82f6; color: white;">Discovering...</span>
+            <% when 'success' %>
+              <span class="status-badge status-success">
+                ✓ <%= blog_site.discovered_count %> found
+                <% if blog_site.discovered_count > 0 %>
+                  (<%= link_to 'view', discovered_urls_blog_site_path(blog_site), style: 'color: white; text-decoration: underline;' %>)
+                <% end %>
+              </span>
+            <% when 'failed' %>
+              <span class="status-badge" style="background: #ef4444; color: white;">Failed</span>
+            <% when 'needs_selector' %>
+              <span class="status-badge" style="background: #f59e0b; color: white;">Needs Selector</span>
+            <% end %>
           </td>
           <td>
             <div class="actions">

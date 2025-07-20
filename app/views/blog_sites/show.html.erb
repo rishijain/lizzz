@@ -7,20 +7,69 @@
   </div>
 
   <div class="form-group">
-    <label class="form-label">Status</label>
-    <p><span class="status-badge status-success">Active</span></p>
+    <label class="form-label">Discovery Status</label>
+    <p>
+      <% case @blog_site.discovery_status %>
+      <% when 'pending' %>
+        <span class="status-badge" style="background: #fbbf24; color: #92400e;">Pending Discovery</span>
+      <% when 'discovering' %>
+        <span class="status-badge" style="background: #3b82f6; color: white;">Discovering URLs...</span>
+      <% when 'success' %>
+        <span class="status-badge status-success">Discovery Complete</span>
+      <% when 'failed' %>
+        <span class="status-badge" style="background: #ef4444; color: white;">Discovery Failed</span>
+      <% when 'needs_selector' %>
+        <span class="status-badge" style="background: #f59e0b; color: white;">Needs Custom Selector</span>
+      <% end %>
+    </p>
   </div>
 
-  <% if @blog_site.articles.any? %>
+  <% if @blog_site.discovery_complete? %>
     <div class="form-group">
-      <label class="form-label">Blog Posts Parsed</label>
-      <p><%= @blog_site.articles.count %> blog posts found</p>
+      <label class="form-label">Blog Posts Discovered</label>
+      <p>
+        <%= @blog_site.discovered_count %> blog posts found
+        <% if @blog_site.success? && @blog_site.discovered_count > 0 %>
+          (<%= link_to 'View URLs', discovered_urls_blog_site_path(@blog_site), style: 'color: #667eea;' %>)
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+
+  <% if @blog_site.needs_custom_selector? %>
+    <div class="form-group">
+      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+        <h4 style="color: #92400e; margin: 0 0 0.5rem 0;">Custom Selector Needed</h4>
+        <p style="color: #92400e; margin: 0;">
+          We couldn't automatically find blog post URLs on your page. Please provide a CSS selector that wraps all blog post links and then retry discovery.
+        </p>
+      </div>
     </div>
   <% end %>
 </div>
 
 <div class="actions" style="margin-top: 2rem;">
-  <%= link_to 'Suggest Links', blog_site_articles_path(@blog_site), class: 'btn btn-primary' %>
+  <% if @blog_site.success? %>
+    <%= link_to 'View Discovered URLs', discovered_urls_blog_site_path(@blog_site), class: 'btn btn-primary' %>
+    <%= link_to 'View Articles', blog_site_articles_path(@blog_site), class: 'btn btn-secondary' %>
+  <% end %>
+  
+  <% if @blog_site.needs_custom_selector? || @blog_site.failed? %>
+    <%= button_to 'Retry Discovery', retry_discovery_blog_site_path(@blog_site), method: :post, class: 'btn btn-primary' %>
+  <% end %>
+  
+  <% if @blog_site.success? && @blog_site.discovered_count > 0 %>
+    <%= link_to 'Clear All URLs', 
+          clear_discovered_urls_blog_site_path(@blog_site), 
+          method: :delete, 
+          data: { 
+            "turbo-method": "delete", 
+            "turbo-confirm": "Are you sure? This will delete all discovered URLs so you can retry with a custom selector." 
+          }, 
+          class: 'btn btn-outline', 
+          style: 'border: 1px solid #f59e0b; color: #f59e0b;' %>
+  <% end %>
+  
   <%= link_to 'Edit', edit_blog_site_path(@blog_site), class: 'btn btn-secondary' %>
   <%= link_to 'Back to Blog Sites', blog_sites_path, class: 'btn btn-secondary' %>
   <%= link_to 'Delete', blog_site_path(@blog_site), 
